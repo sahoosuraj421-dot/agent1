@@ -35,6 +35,12 @@ The checked-in authorization config allows only localhost by default. Add
 authorized targets from the app's sidebar after deployment. For local runs,
 copy `.env.example` to `.env` for optional credentials; never commit `.env`.
 
+Streamlit Community Cloud cannot directly reach private LAN addresses such as
+`10.x.x.x` or `192.168.x.x`. To scan a private firewall, run the app on a
+machine in that network or provide a properly secured VPN/private route from
+the app host. An active device may also appear unreachable if its management
+ports and ping are blocked from the app host.
+
 ---
 
 ## ✨ Features

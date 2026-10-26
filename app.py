@@ -47,6 +47,14 @@ except Exception as e:
     st.error(f"Failed to load agent core modules: {e}")
     st.stop()
 
+
+def _is_private_target(target: str) -> bool:
+    try:
+        return ipaddress.ip_network(target, strict=False).is_private
+    except ValueError:
+        return False
+
+
 # =====================================================================
 # Page Configuration & Styling
 # =====================================================================
@@ -419,14 +427,28 @@ with main_tab:
     # Display Scan Results
     if st.session_state.is_active is False:
         st.markdown(
-            f'<div class="status-badge-inactive">❌ Target {st.session_state.target_ip} is INACTIVE / Offline</div>',
+            f'<div class="status-badge-inactive">⚠️ Reachability to {st.session_state.target_ip} was not confirmed</div>',
             unsafe_allow_html=True
         )
-        st.warning(
-            f"Could not confirm reachability to `{st.session_state.target_ip}` from this machine.\n\n"
-            "- If testing a private LAN address (e.g. 192.168.x.x or 10.x.x.x), ensure this host has network routing or VPN.\n"
-            "- For quick demonstration or testing, try `127.0.0.1`."
-        )
+        if _is_private_target(st.session_state.target_ip):
+            st.warning(
+                f"`{st.session_state.target_ip}` is a private network address. "
+                "If this app is running on Streamlit Community Cloud or another host "
+                "outside your LAN, that server cannot route to your device, even when "
+                "the device is online. Run this app on a computer in the same network, "
+                "or connect the hosting server to that network through a properly "
+                "configured VPN/private route. For a UI demo only, use `127.0.0.1`.",
+                title="Private target is outside the app server's network",
+            )
+        else:
+            st.warning(
+                f"The app server could not confirm that `{st.session_state.target_ip}` "
+                "is reachable. This does not prove that the device is offline: its "
+                "management ports or ping may be blocked from the app server. Run the "
+                "app from a network that is authorized to access the device and check "
+                "that its management service is enabled.",
+                title="Target not reachable from the app server",
+            )
 
     elif st.session_state.is_active is True:
         st.markdown(
