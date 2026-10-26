@@ -39,7 +39,9 @@ Streamlit Community Cloud cannot directly reach private LAN addresses such as
 `10.x.x.x` or `192.168.x.x`. To scan a private firewall, run the app on a
 machine in that network or provide a properly secured VPN/private route from
 the app host. An active device may also appear unreachable if its management
-ports and ping are blocked from the app host.
+ports and ping are blocked from the app host. Likewise, `127.0.0.1` and
+`localhost` refer to the machine running the app; on Community Cloud they refer
+to the cloud server, not your computer.
 
 ---
 

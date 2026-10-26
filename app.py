@@ -55,6 +55,13 @@ def _is_private_target(target: str) -> bool:
         return False
 
 
+def _is_loopback_target(target: str) -> bool:
+    try:
+        return ipaddress.ip_network(target, strict=False).is_loopback
+    except ValueError:
+        return False
+
+
 # =====================================================================
 # Page Configuration & Styling
 # =====================================================================
@@ -430,14 +437,24 @@ with main_tab:
             f'<div class="status-badge-inactive">⚠️ Reachability to {st.session_state.target_ip} was not confirmed</div>',
             unsafe_allow_html=True
         )
-        if _is_private_target(st.session_state.target_ip):
+        if _is_loopback_target(st.session_state.target_ip):
+            st.warning(
+                "`127.0.0.1` / `localhost` always refers to the machine running this "
+                "app. On Streamlit Community Cloud, that is the cloud server, not your "
+                "computer, and no firewall on your LAN is reachable at that address. "
+                "To scan your firewall, run the app locally on a computer with LAN "
+                "access, or connect the app host to your network through a properly "
+                "configured VPN/private route.",
+                title="Localhost is the app server, not your computer",
+            )
+        elif _is_private_target(st.session_state.target_ip):
             st.warning(
                 f"`{st.session_state.target_ip}` is a private network address. "
                 "If this app is running on Streamlit Community Cloud or another host "
                 "outside your LAN, that server cannot route to your device, even when "
                 "the device is online. Run this app on a computer in the same network, "
                 "or connect the hosting server to that network through a properly "
-                "configured VPN/private route. For a UI demo only, use `127.0.0.1`.",
+                "configured VPN/private route.",
                 title="Private target is outside the app server's network",
             )
         else:
