@@ -48,17 +48,13 @@ flowchart TD
 ## 📂 Repository & Workspace Layout
 
 ```
-├── agent/                                # Main User Application Workspace
-│   ├── app.py                            # Streamlit Web Dashboard UI
-│   ├── cli.py                            # Interactive & Non-interactive CLI Agent
-│   ├── run_ui.bat                        # 1-Click Windows Launcher for Streamlit
-│   ├── .env                              # Active environment variables (API keys & secrets)
-│   ├── .env.example                      # Template environment configuration
-│   ├── .gitignore                        # Git exclusion rules (safeguards secrets)
-│   ├── setup.md                          # This architecture & setup guide
-│   └── README.md                         # Quick-start documentation
-│
-└── firewall-audit-agent/                 # Core LangGraph Agent Engine & Connectors
+├── app.py                                # Streamlit Web Dashboard UI
+├── cli.py                                # Interactive & Non-interactive CLI Agent
+├── requirements.txt                      # Streamlit and agent dependencies
+├── .env.example                          # Template environment configuration
+├── setup.md                              # This architecture & setup guide
+├── README.md                             # Quick-start and deployment instructions
+└── firewall-audit-agent/                 # Core package included for deployment
     ├── langgraph_agent/
     │   ├── graph.py                      # StateGraph definition & conditional edges
     │   ├── state.py                      # AuditState TypedDict definition
@@ -80,17 +76,15 @@ flowchart TD
     │   ├── authorized_subnets.yaml       # Allowed scanning targets & CIDR blocks
     │   ├── fingerprint_db.yaml           # Signatures for firewall vendor banners & ports
     │   └── vendors.yaml                  # Vendor endpoint specifications
-    ├── downloads/                        # Output folder for downloaded .json & .cfg files
-    ├── reports/                          # Output folder for audit reports (.md & .json)
-    └── tests/
-        └── test_agent.py                 # Pytest test suite (35+ unit & integration tests)
+    ├── downloads/                        # Created for downloaded .json & .cfg files
+    └── reports/                          # Created for audit reports (.md & .json)
 ```
 
 ---
 
 ## 🔑 Environment Configuration (`.env`)
 
-The project uses `.env` in the `agent/` folder (loaded automatically by `app.py`, `cli.py`, and `langgraph_agent/paths.py`).
+The project uses `.env` in the repository root (loaded automatically by `app.py`, `cli.py`, and `langgraph_agent/paths.py`).
 
 ### Environment Variables Reference Table
 
@@ -120,7 +114,7 @@ The project uses `.env` in the `agent/` folder (loaded automatically by `app.py`
 
 When LLM classification is enabled (via `use_llm=True` in UI, or `--llm` in CLI):
 1. **Telemetry Assembly:** The scanner and fingerprinter collect open ports, HTTP service banners, SSL certificate subjects, and heuristic guesses.
-2. **API Call:** `classifier_node` in [classifier.py](file:///c:/Users/HP/OneDrive/Desktop/firewall-audit-agent/langgraph_agent/nodes/classifier.py) initializes `huggingface_hub.InferenceClient(api_key=token)` and sends a structured system prompt.
+2. **API Call:** `classifier_node` in `firewall-audit-agent/langgraph_agent/nodes/classifier.py` sends a structured system prompt to the configured Hugging Face inference service.
 3. **Structured Response Extraction:** The model responds with JSON matching:
    ```json
    [
@@ -167,12 +161,6 @@ python cli.py 192.168.1.1 -p admin --llm --hf-token "hf_xxx" --hf-model "meta-ll
 # Non-interactive mode (for CI/CD or scripting)
 python cli.py 127.0.0.1 -p admin --llm --non-interactive
 ```
-
-### 3. Running Unit & Integration Tests
-```powershell
-python -m pytest ../firewall-audit-agent
-```
-All 35 tests covering authorization, scanner IP normalization, password masking, Hugging Face LLM classification, fallback mechanisms, demo mode, and connectors should pass.
 
 ---
 

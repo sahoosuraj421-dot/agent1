@@ -6,6 +6,12 @@ A Streamlit web application and CLI agent to scan target IPs/subnets, verify rea
 
 ## 🚀 Running the Streamlit UI
 
+Install the dependencies from the repository root first:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
 You can start the web interface using either:
 
 ### Method 1: Command Line
@@ -17,6 +23,17 @@ python -m streamlit run app.py
 Double-click `run_ui.bat` in this folder.
 
 The UI will automatically open in your default browser at `http://localhost:8501`.
+
+### Deploying on Streamlit Community Cloud
+
+Create a new app from this GitHub repository, select the `main` branch, and set
+`app.py` as the main file. Keep the app's root directory at the repository
+root. The required `firewall-audit-agent` core package and `requirements.txt`
+are included in this repository; do not configure a separate package directory.
+
+The checked-in authorization config allows only localhost by default. Add
+authorized targets from the app's sidebar after deployment. For local runs,
+copy `.env.example` to `.env` for optional credentials; never commit `.env`.
 
 ---
 
