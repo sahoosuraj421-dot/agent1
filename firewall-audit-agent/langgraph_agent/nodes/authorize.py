@@ -2,6 +2,22 @@ import ipaddress
 from langgraph_agent.paths import load_yaml
 from langgraph_agent.state import AuditState
 
+
+def normalize_target(target: str) -> str:
+    """Normalize zero-padded dotted-decimal IPv4 octets."""
+    target = (target or "").strip()
+    address, separator, suffix = target.partition("/")
+    octets = address.split(".")
+    if (
+        len(octets) == 4
+        and all(octet.isascii() and octet.isdigit() and len(octet) <= 3 for octet in octets)
+    ):
+        values = [int(octet) for octet in octets]
+        if all(0 <= octet <= 255 for octet in values):
+            address = ".".join(str(octet) for octet in values)
+    return f"{address}{separator}{suffix}"
+
+
 def _target_in_cidr(target: str, cidr: str) -> bool:
     try:
         net = ipaddress.ip_network(cidr, strict=False)
@@ -18,7 +34,7 @@ def _target_in_cidr(target: str, cidr: str) -> bool:
 
 def is_authorized(target: str, allow_private_prompt: bool = False) -> tuple[bool, str]:
     """Shared gate: used for scan targets AND vendor-API hosts."""
-    target = (target or "").strip()
+    target = normalize_target(target)
     if not target:
         return False, "REFUSED: empty target."
     try:
@@ -41,7 +57,7 @@ def add_authorized_target(target: str) -> bool:
     """Add a target IP or CIDR to authorized_subnets.yaml."""
     from langgraph_agent.paths import config_dir
     import yaml
-    target = (target or "").strip()
+    target = normalize_target(target)
     if not target:
         return False
     try:

@@ -39,7 +39,6 @@ try:
     from langgraph_agent.nodes.scanner import check_target_active, _resolve_nmap_bin
     from langgraph_agent.nodes.authorize import (
         is_authorized,
-        is_subnet_mask,
         add_authorized_target,
         normalize_target,
     )
